@@ -1,0 +1,193 @@
+#!/bin/rc
+
+rfork
+
+fn usage {
+	echo 'w find [regex ...]'
+	echo 'w [-t regex] cmd ...'
+	echo 'Where cmd is one or more of the following:'
+	echo '  -c wctl'
+	echo '  hide|show'
+	echo '  bottom'
+	echo '  left|Left|center|right|Right'
+	echo '  up|Up|down|Down'
+	echo '  height|width [factor]'
+	echo '  stack [offset]'
+	echo '  tile'
+	exit usage
+}
+
+fn isnum {
+	echo $1 | grep -s '^[0-9\.]+$'
+}
+
+fn append {
+	echo $* >>/env/wctlcmd
+}
+
+fn wfind {
+	for(w in /dev/wsys/*)
+		grep -s $1 $w/label && echo $w | sed 's~.*/~~'
+}
+
+fn wwidth {
+	wf=$1
+	dx=`{echo '('$riow'-'$borderoff')*'$wf | bc | sed 's~\..*~~'}
+	append 'resize -dx '$dx
+}
+
+fn wheight {
+	hf=$1
+	dy=`{echo '('$rioh'-'$borderoff')*'$hf | bc | sed 's~\..*~~'}
+	append 'resize -dy '$dy
+}
+
+fn wmove {
+	where=$1
+	win=`{read -c 48 /dev/wsys/$wid/wctl >[2]/dev/null}
+	dx=`{echo $win(3) - $win(1) | bc}
+	dy=`{echo $win(4) - $win(2) | bc}
+	switch($where){
+	case down ; append move -miny +$dy
+	case up ; append move -miny -$dy
+	case left ; append move -minx -$dx
+	case right ; append move -minx +$dx
+	case Left centerx Right
+		switch($where){
+		case Left ; x=0
+		case centerx ; x=`{echo $riow / 2 - $dx / 2 | bc}
+		case Right ; x=$riow
+		}
+		append move -minx $x
+	case Down centery Up
+		switch($where){
+		case Down ; y=$rioh
+		case centery ; y=`{echo $rioh / 2 - $dy / 2 | bc}
+		case Up ; y=0
+		}
+		append move -miny $y
+	}
+}
+
+fn wstack {
+	off=$1
+	dirx=+
+	diry=+
+	if(test $bx -gt `{echo $riow / 2 - $off'*'$#wids | bc})
+		dirx=-
+	if(test $by -gt `{echo $rioh / 2 - $off'*'$#wids | bc})
+		diry=-
+	append move -minx $bx -miny $by
+	append move -minx $dirx$stackoff -miny $diry$stackoff
+	stackoff=`{echo $off + $stackoff | bc}
+}
+
+fn wtile {
+	@{
+		if(~ $didtile true)
+			exit
+		tf=0.`{echo 1000 / $#wids | bc}
+		for(i in `{seq 1 $#wids}){
+			for(n in `{seq 2 $i})
+				d=($d down)
+			wids=$wids($i) dow h $tf U $d
+			d=()
+		}
+	}
+	didtile=true
+}
+
+fn parse {
+	append unhide
+	append current
+	for(arg){
+		switch($1){
+		case -c ; append $2; shift
+		case width w
+			if(isnum $2){wwidth $2; shift}
+			if not {
+				x=`{stringsize -n 82}
+				x=$x(1)
+				wwidth `{echo $x' / '$riow | hoc}
+			}
+		case height h
+			if(isnum $2){wheight $2; shift}
+			if not {
+				y=`{stringsize}
+				y=$y(2)
+				wheight `{echo '(23*'$y') / '$rioh | hoc}
+			}
+		case right r ; wmove right
+		case Right R ; wmove Right
+		case left l ; wmove left
+		case Left L ; wmove Left
+		case up u ; wmove up
+		case Up U ; wmove Up
+		case down d ; wmove down
+		case Down D ; wmove Down
+		case centerx cx ; wmove centerx
+		case centery cy ; wmove centery
+		case center c ; wmove centery; wmove centerx
+		case hide hi ; append hide; return=false
+		case show s ; append top
+		case delete del ; append delete; return=false
+		case bottom b ; append bottom; return=false
+	 	case stack
+			if(isnum $2){wstack $2; shift}
+			if not {wstack 15}
+		case tile ; wtile
+		case find f
+			if(~ $#* 2) {wfind $2; shift}
+			if not {wfind '.*'}
+		}
+		shift
+	}
+}
+
+fn dow {
+	for(wid in $wids){
+		parse $*
+		read -m /env/wctlcmd >>/dev/wsys/$wid/wctl
+		>/env/wctlcmd
+	}
+	if(~ $return true)
+		echo current >>/dev/wsys/$bwid/wctl
+}
+
+>/env/wctlcmd
+wid=()
+wids=()
+border=0
+borderoff=0
+stackoff=0
+return=true
+didstack=false
+didtile=false
+scr=/dev/screen
+if(test -e /mnt/orio/window){ # we're in subrio
+	scr=/mnt/orio/window # refers to the subrio window
+	border=2
+	borderoff=4
+}
+rioscr=`{read -c 59 $scr}
+riox=$rioscr(2)
+rioy=$rioscr(3)
+riow=`{echo $rioscr(4) - $rioscr(2) | bc}
+rioh=`{echo $rioscr(5) - $rioscr(3) | bc}
+bwid=`{cat /dev/winid}
+bwin=`{read -c 48 /dev/wctl >[2]/dev/null}
+bx=`{echo $bwin(1) - $riox - $border | bc}
+by=`{echo $bwin(2) - $rioy - $border | bc}
+wids=`{cat /dev/winid}
+
+if(~ $#* 0)
+	dow w h 1
+while(~ $1 -*){
+	switch($1){
+		case -t
+			wids=`{wfind $2}
+			shift
+	}
+}
+dow $*
+exit 0

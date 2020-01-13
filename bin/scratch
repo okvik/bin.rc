@@ -1,0 +1,7 @@
+#!/bin/rc
+if(test $#* -ge 1){
+	>$1
+	window -m hold $1
+}
+if not
+	window hold

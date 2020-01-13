@@ -1,0 +1,65 @@
+#!/bin/rc
+rfork e
+fn usage {>[2=1] echo 'usage:' $usage && exit 'usage'}
+usage='c [-fs] [regex] [search]
+	-f        find functions
+	-s        find structs'
+
+fn struct {
+	ignore = (/sys/include/ape)
+	search = $*
+	if(~ $#search 0)
+		search = (/sys/include .)
+	if(~ $search *^$ignore^*)
+		ignore = (cat)
+	if not
+		ignore = (grep -v -e^'^'$ignore)
+
+	files = `{walk -f $search | $ignore | grep '\.[chsyl]$'}
+
+	echo 'X ,x@^struct([^}][^;]*\n*)+};\n@ g@^struct[ 	]+'$regex'@ {
+		!echo '•' $%:$%l
+		p
+	}' | sam -d $files >[2]/dev/null
+}
+
+fn function {
+	ignore = ('\.root.s$' 'cmd/python/')
+	search = $*
+	if(~ $#search 0)
+		search = (.)
+	if(~ $search *^$ignore^*)
+		ignore = (cat)
+	if not
+		ignore = (grep -v -e^'^'$ignore)
+
+	files = `{walk -f $search | $ignore | grep '\.[chsyl]$'}
+
+	sep = '	• '
+	echo 'X ,x g@^'$regex'\(@ {
+		!echo -n $%:$%l $sep
+		p
+	}' | sam -d $files >[2]/dev/null
+}
+
+identifier = '[a-zA-Z_0-9]*'
+op = (struct)
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -f -func*
+		op = 'function'
+	case -s -struct
+		op = 'struct'
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+regex = `{echo $1 | sed 's:%:'$identifier':g'}
+if(~ $#regex 0)
+	regex = $identifier
+shift
+
+$op $*

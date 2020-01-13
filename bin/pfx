@@ -1,0 +1,9 @@
+#!/bin/rc
+args=()
+for(arg){
+	if(echo $arg | grep -s '[ 	]')
+		args=($args ''''$arg'''')
+	if not
+		args=($args $arg)
+}
+sed 's:^:'^$"args^' :g'

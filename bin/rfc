@@ -1,0 +1,42 @@
+#!/bin/rc
+rfork e
+fn usage {
+	>[2=1] echo $0
+	exit usage
+}
+
+cmd='search'
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -s
+		cmd='search'
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+
+fn cleanupindex {
+	</lib/rfc/rfc-index awk '
+		/^ +RFC INDEX/ {i++; l = NR}
+		i >= 2 && NR > l+4 {print}
+	'
+}
+
+fn search {
+	query=$1
+	cleanupindex | awk '
+		BEGIN {RS=""}
+		/'$query'/ {
+			num = $1
+			sub(/^0+/, "", num)
+			print "RFC" num
+			sub(/^..../, "    ", $0)
+			print $0
+		}
+	'
+}
+
+$cmd $*

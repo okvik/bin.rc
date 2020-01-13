@@ -1,0 +1,20 @@
+#!/bin/rc
+# 9p://
+# type is text
+# data matches '9p://([^ /]+)(/[^ ]+)?'
+# plumb start window 9plumb $1 $2
+
+host=$1
+name=$2
+if(~ $#name 0)
+	name=''
+srv $host $host /n/$host
+if(~ $name '' || test -d /n/$host/$name){
+	cd /n/$host/$name; pwd; ls -l
+}
+if not{
+	cd `{basename -d /n/$host/$name}
+	echo /n/$host/$name
+	cat /n/$host/$name
+}
+exec rc

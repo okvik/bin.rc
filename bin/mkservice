@@ -1,0 +1,25 @@
+#!/bin/rc
+rfork e
+fn usage {>[1=2] echo 'usage:' $usage && exit 'usage'}
+usage='mkservice path'
+
+svpath = $1
+if(~ $#svpath 0)
+	usage
+svname = `{basename $svpath}
+cat <<. |x/run
+	set -e
+	mkdir -p $svpath
+	cd $svpath
+	touch run
+	chmod +x run
+	echo '#!/bin/sh' >>run
+	echo 'exec 2>&1' >>run
+	echo 'exec sleep 10' >>run
+	
+	mkdir log
+	touch log/run
+	chmod +x log/run
+	echo '#!/bin/sh' >>log/run
+	echo 'exec logger -t $svname -p daemon.notice' >>log/run
+.

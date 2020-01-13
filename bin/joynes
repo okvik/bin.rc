@@ -1,0 +1,45 @@
+#!/bin/rc
+nusb/joy $1 | awk -safe -v 'joy='$2 '
+	BEGIN { k[0] = "" }
+
+#	/^axis 0 0/   { k[0] = "left " }
+#	/^axis 0 255/ { k[0] = "right " }
+#	/^axis 0 128/ { k[0] = "" }
+#
+#	/^axis 1 0/   { k[1] = "up " }
+#	/^axis 1 255/ { k[1] = "down " }
+#	/^axis 1 128/ { k[1] = "" }
+	
+	/^down 5$/ { k[0] = "up " }
+	/^down 6$/ { k[0] = "right " }
+	/^down 7$/ { k[0] = "down " }
+	/^down 8$/ { k[0] = "left " }
+	
+	/^down 9$/ { k[3] = "b " }
+	/^down 10$/ { k[2] = "a " }
+	/^down 16$/ { k[3] = "b " }
+	/^down 14$/ { k[2] = "a " }
+	/^down 1$/ { k[4] = "control " }
+	/^down 4$/ { k[5] = "start " }
+
+	/^up 5$/ { k[0] = "" }
+	/^up 6$/ { k[0] = "" }
+	/^up 7$/ { k[0] = "" }
+	/^up 8$/ { k[0] = "" }
+	
+	/^up 9$/ { k[3] = "" }
+	/^up 10$/ { k[2] = "" }
+	/^up 16$/ { k[3] = "" }
+	/^up 14$/ { k[2] = "" }
+	/^up 1$/ { k[4] = "" }
+	/^up 4$/ { k[5] = "" }
+
+	/^up|down/ {
+		if(joy != "")
+			printf "joy%s ", joy
+		for(i = 0; i <= 5; i++)
+			printf k[i]
+		printf "\n"
+		fflush
+	}
+'

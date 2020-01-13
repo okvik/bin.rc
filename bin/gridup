@@ -1,0 +1,137 @@
+#!/bin/rc
+rfork e
+fn usage {
+	>[2=1] echo 'usage:' $0 '[-mst]'
+	exit usage
+}
+fn quiet {
+	if(~ $quiet 'no')
+		>[2=1] echo $*
+}
+fn fail {
+	quiet fail: $*
+	exit 'fail: '$*
+}
+
+registry='tcp!registry.9gridchan.org!6675'
+reconnect='no'
+mountonly='no'
+scriptonly='no'
+tls='no'
+quiet='no'
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -m
+		mountonly='yes'
+	case -s
+		scriptonly='yes'
+	case -t
+		tls='yes'
+		registry='tcp!registry.9gridchan.org!6675'
+	case -q
+		quiet='yes'
+		reconnect='yes'
+	case *
+		usage
+	}
+	shift
+}
+if(! ~ $#* 0)
+	usage
+
+services=( \
+	gridregistry pubregistry \
+	gridchat gridplumber \
+	gridram griddisk \
+	gridroot gridwiki)
+for(s in $services)
+	if(test -w /srv/$s)
+		reconnect='yes'
+if(~ $reconnect 'yes'){
+	if(~ $quiet 'no'){
+		echo -n 'old grid connections found in /srv, remove? [y/n]: '
+		reconnect=`{read}
+	}
+	if(~ $reconnect y*)
+		rm -f /srv/^$services
+}
+
+if(~ $mountonly 'no')
+	rfork n
+if(~ $tls 'no')
+	srv $registry gridregistry /mnt/registry || fail registry
+if not{
+	if(! test -w /mnt/factotum/ctl)
+		auth/factotum
+	>/mnt/factotum/ctl echo 'key proto=dp9ik user=glenda dom=grid !password=9gridchan' || fail factotum
+	srvtls $registry gridregistry /mnt/registry || fail registry
+}
+
+>/tmp/gridmount echo '#!/bin/rc'
+>>/tmp/gridmount </mnt/registry/index awk -v 'tls='$tls '
+	/service tlssrv/ && tls == "yes" {
+		print "srvtls -c", $1, $3, $5}
+	/service \/bin\/exportfs/ && tls == "no" {
+		print "srv -c", $1, $3, $5}
+'
+chmod +x /tmp/gridmount
+
+if(~ $scriptonly 'yes'){
+	quiet 'mount script saved in /tmp/gridmount'
+	cat /tmp/gridmount
+	exit
+}
+if(~ $mountonly 'yes'){
+	/tmp/gridmount || fail 'could not mount'
+	quiet 'grid services mounted'
+	exit
+}
+
+>/tmp/chatcat cat <<'...'
+#!/bin/rc
+label chat
+echo 'README:'
+echo '	This is chatcat(1).'
+echo '	Type a (multi-line) message ending with a newline'
+echo '	and press control-d (EOT) to send.'
+echo
+echo -n 'nick? '
+nick=`{read}
+if(~ $#nick 0)
+	nick='unknown gridster'
+echo JOIN $nick to chat >>/n/chat/chat
+cat /n/chat/chat &
+while() cat | sed '1s/^/'$nick' → /' >>/n/chat/chat
+...
+chmod +x /tmp/chatcat
+
+>/tmp/gridrio cat <<'...'
+#!/bin/rc
+if(test -x /bin/chat)
+	window -r 0 0 700 400 -scroll chat
+if not
+	window -r 0 0 700 400 -scroll /tmp/chatcat
+window -r 700 0 1300 400 acme -c1 /n/griddisk /n/griddisk/gridmsg
+window -r 0 400 700 750 mothra -a http://wiki.9gridchan.org/message_board
+window -r 700 400 1300 750 page /n/gridroot/lib/musicant.png
+...
+chmod +x /tmp/gridrio
+
+>/tmp/gridscript cat <<'...'
+#!/bin/rc
+/tmp/gridmount
+fn cpl {
+	cp $1 /n/griddisk/cpl
+	ptarg=`{basename $1}
+	plumb http://wiki.9gridchan.org/incoming/cpl/$ptarg
+}
+if(! test -e /mnt/web/ctl)
+	webfs
+rio=(rio)
+if(test -x /bin/grio)
+	rio=(grio -c 0x99009900)
+exec $rio -i /tmp/gridrio
+...
+chmod +x /tmp/gridscript
+
+window -r 0 0 1350 750 /tmp/gridscript

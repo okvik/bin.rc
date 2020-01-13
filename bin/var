@@ -1,0 +1,16 @@
+#!/bin/rc
+# var - find C variable declarations
+# var [pattern]
+rfork e
+
+ident='([a-zA-Z_][a-zA-Z_0-9]*)'
+var=$1
+var=`{echo $var | sed 's,%,'$ident'?,g'}
+if(~ $#var 0)
+	var=$ident
+cat >/env/decl <<.
+[ 	]*$ident([\* 	]+$ident[, 	]*)*([\* 	]+$var[, 	]*)+([\* 	]+$ident[, 	]*)*(;|=[^=]*)$
+.
+falsematch='(return|goto|typedef)[ 	]+';
+srcs=`{walk -f | grep '\.[chy]$'}
+grep -n -e `''{cat /env/decl} $srcs /dev/null | grep -v $falsematch | sed 's,[ 	]+, ,g'

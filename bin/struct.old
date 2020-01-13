@@ -1,0 +1,81 @@
+#!/bin/rc
+# struct - find C struct definitions
+rfork e
+
+fn usage {
+	>[2=1] echo struct [-pr] [pattern] [path ...]
+	exit usage
+}
+
+plumb=0
+recursive=0
+tag='%'
+include=(. /sys/include /$cputype/include)
+while(! ~ $#* 0 && ~ $1 -*){
+	switch($1){
+	case -p
+		plumb=1
+	case -r
+		recursive=1
+	case *
+		usage
+	}
+	shift
+}
+if(! ~ $#* 0){
+	tag=$1
+	shift
+}
+if(! ~ $#* 0)
+	include=$*
+
+wf=(-f)
+if(~ $recursive 0)
+	wf=($wf -n1)
+files=`{walk $wf $include | grep '\.[ch]$'}
+if(~ $#files 0)
+	exit 'no files'
+
+awk '
+BEGIN {
+	plumb = ENVIRON["plumb"]
+	tag = ENVIRON["tag"]
+	if(match(tag, /%/))
+		gsub(/%/, "[a-zA-Z0-9_]+", tag)
+	tag = "[ 	]" tag "[ 	{]?"
+}
+/^[ 	]*(typedef|struct|union|enum)[ 	]+(typedef|struct|union|enum)?[ 	]*([a-zA-Z_][a-zA-Z0-9_]*)?[ 	]*{/ {
+	loc = FILENAME ":" FNR
+	if(match($0, "[ 	]*}[ 	]*;[ 	]*$") && match($0, tag)){
+		if(plumb)
+			system("plumb -d edit " loc)
+		else
+			printf("%s\n%s\n", loc, $0)
+		next
+	}
+	collect = 1
+	found = 0
+	if(match($0, tag))
+		found = 1
+	if(found && plumb){
+		system("plumb -d edit " loc)
+		next
+	}
+}
+collect { ln[i++] = $0 }
+collect && /^}/{
+	if(found || match($0, tag)){
+		print loc
+		for(j = 0; j < length(ln); j++)
+			print ln[j]
+	}
+	collect = 0
+	found = 0
+	i = 0
+	delete ln
+}
+END{
+	if(found == 0)
+		exit "not found"
+}
+' $files

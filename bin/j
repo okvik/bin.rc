@@ -1,0 +1,8 @@
+#!/bin/rc
+# Join lines
+exec ssam '
+,x~.*\n~{
+	x~^[ 	]+~d
+	x~[ 	]+$~d
+}
+,x~\n~c~ ~'

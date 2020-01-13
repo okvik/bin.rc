@@ -1,0 +1,8 @@
+#!/bin/rc
+switch($%){
+case *.[chs] *.myr
+	cmnt='//'
+case *
+	cmnt='#'
+}
+exec sed 's,^,'$cmnt','

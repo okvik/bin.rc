@@ -1,0 +1,24 @@
+#!/bin/rc -e
+rfork en
+fn usage {>[2=1] echo 'usage:' $usage && exit 'usage'}
+usage='vm name'
+
+fn alp {
+	name='alp'
+	root=$home/vmx/$name
+	mem=(-M 1G)
+	net=(-n ether0)
+	disk=(-d /dev/sdE0/disk0)
+	video=(-v vesa:640x480)
+	initrd=(-m initramfs-virt)
+	kernel=(vmlinuz-virt 'root=/dev/vda3' 'rootfstype=ext4')
+	cd $root
+	exec vmx $mem $disk $net $video $initrd $kernel
+}
+
+if(~ $#* 0)
+	usage
+select=$1; shift
+echo scrollon >/dev/wctl
+label $select
+$select

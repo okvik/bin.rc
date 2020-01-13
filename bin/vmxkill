@@ -1,0 +1,6 @@
+#!/bin/rc
+for(x in (0 1 2 3 4)){
+	f='#X/'^$x^'/ctl'
+	if(test -e $f)
+		echo 'quit' > $f
+}

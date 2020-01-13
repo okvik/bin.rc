@@ -1,0 +1,12 @@
+#!/bin/rc
+rfork en
+if(test -f /mnt/acme/index){ # in acme
+	unmount /acme/bin/amd64 /bin 
+	unmount /acme/bin /bin 
+	tag=`{cat /mnt/acme/$winid/tag}
+	dir=`{basename -d $tag(1)}
+}
+if not{ # in sam
+	dir=`{basename -d $%}
+}
+exec window -m -cd $dir $*

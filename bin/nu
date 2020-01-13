@@ -1,0 +1,2 @@
+#!/bin/awk -f
+{printf("%d\t%s\n", NR, $0)}

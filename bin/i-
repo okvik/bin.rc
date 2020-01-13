@@ -1,0 +1,17 @@
+#!/bin/awk -f
+BEGIN{
+	n = 1
+	if(ARGC > 1){
+		n = ARGV[1]; ARGC--
+	}
+	for(i = 1; i < 50; i++)
+		tabs[i] = tabs[i-1] "	"
+}
+{
+	if(match($0, /^	+/) == 0){
+		print
+		next
+	}
+	sub(/^	+/, tabs[RLENGTH-n])
+	print
+}

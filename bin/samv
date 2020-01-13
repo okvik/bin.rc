@@ -1,0 +1,17 @@
+#!/bin/rc
+# samv [-m] [samflags] [file ...]
+rfork e
+flags=(-a)
+while(~ $1 -*){
+	switch($1){
+	case *
+		flags=($flags $1)
+	}
+	shift
+}
+files=($%)
+if(! ~ $#* 0)
+	files=($files $*)
+cmd=(sam $flags $files)
+#ptrap edit $"files
+window -m $cmd

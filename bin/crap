@@ -1,0 +1,118 @@
+#!/bin/rc
+# crap [ -s sandbox ]
+# commands:
+# 	empty line executes
+#	p, P - print code / sandbox
+#	c, C - clear code / sandbox
+#	e, E - open $editor on code / sandbox
+#	s - print assembly listing
+#	d - run acid(1)
+#	t - run time(1)
+
+rfork en
+
+if(~ $#editor 0)
+	editor=(ed)
+nl='
+'
+tab='	'
+sandbox0=sandbox0.$pid.c
+sandbox=sandbox.$pid.c
+tmp=tmp.$pid.c
+util=util.$pid.h
+code=code.$pid.c
+mkfile=mkfile.$pid
+
+fn generate {
+	<$sandbox >$tmp ssam '
+	/\/\*START\*\//+1 , /\/\*END\*\//-1 c/\n/
+	/\/\*START\*\//+1 r '$code
+	cp $tmp $sandbox
+}
+
+ramfs -bc -m .
+
+>$mkfile echo '
+</$objtype/mkfile
+CFLAGS=-FTVN
+default:VQ:
+	$CC $CFLAGS -o sandbox.$O '^$sandbox^'
+	$LD $LDFLAGS sandbox.$O
+asm:VQ:
+	$CC $CFLAGS -S '^$sandbox^'
+run:VQ: default
+	./$O.out
+time:VQ: default
+	time ./$O.out'
+
+>$util echo '
+char errmsg[ERRMAX];
+#define err \
+	rerrstr(errmsg, ERRMAX); \
+	if(errmsg[0] != 0) print("error: %r\n");
+#define fail \
+	rerrstr(errmsg, ERRMAX); \
+	if(errmsg[0] != 0) sysfatal("%r");'
+
+>$sandbox0 echo '
+#include <u.h>
+#include <libc.h>
+#include "'^$util^'"
+void
+main(int, char *[])
+{
+	/*START*/
+
+	/*END*/
+	exits(nil);
+}'
+
+while(! ~ $#* 0 && ~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -s
+		cp $2 $sandbox0
+		shift
+	}
+	shift
+}
+cp $sandbox0 $sandbox
+
+echo -n >$code
+while(line=`$nl{read}){
+	if(! echo $"line | grep -s '^.$' && ! ~ $#line 0){
+		echo -n $"tab >>$code
+		echo $"line >>$code
+	}
+	if not{
+		cmd=$line
+		switch($cmd){
+		case s
+			generate
+			mk -f $mkfile asm
+		case d
+			generate
+			mk -f $mkfile run
+			acid *.out
+		case t
+			generate
+			mk -f $mkfile time
+		case e
+			$editor $code
+		case E
+			$editor $sandbox
+			<$sandbox >$code ssam -n '/\/\*START\*\//+1 , /\/\*END\*\//-1 p'
+		case p
+			cat $code
+		case P
+			cat $sandbox
+		case c
+			echo >$code
+			generate
+		case C
+			cp $sandbox0 $sandbox
+		case *
+			generate
+			mk -f $mkfile run
+		}
+	}
+}

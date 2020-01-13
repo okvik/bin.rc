@@ -1,0 +1,7 @@
+#!/bin/rc
+if(! test -e /srv/hublog)
+	hubfs -t -s hublog
+local mount -c /srv/hublog /mnt/log
+if(! test -e /mnt/log/log)
+	touch /mnt/log/log
+cat /mnt/log/log

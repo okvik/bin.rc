@@ -1,0 +1,5 @@
+#!/bin/rc
+rfork n
+aux/stub /mnt/snarfy/snarf
+bind -c /dev/snarf /mnt/snarfy/snarf
+aux/listen1 -t tcp!*!2000 /bin/exportfs -r /mnt/snarfy &

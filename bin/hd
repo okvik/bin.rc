@@ -1,0 +1,16 @@
+#!/bin/rc
+lines=3
+while(! ~ $#* 0 && ~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -[0-9]*
+		lines=`{echo $1 | sed 's:^-::'}
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+if(~ $#* 0)
+	'*'=*
+for(f)
+	if(test -f $f)
+		echo « $f && sed $lines^q $f && echo »

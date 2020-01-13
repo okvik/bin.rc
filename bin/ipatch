@@ -1,0 +1,21 @@
+#!/bin/rc
+rfork e
+fn usage {
+	>[2=1] echo $0 f1 f2
+	exit usage
+}
+
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+if(! ~ $#* 2)
+	usage
+
+cp $1 $1.orig &&
+idiff $1.orig $2 > $1

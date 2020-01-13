@@ -1,0 +1,5 @@
+#!/bin/rc
+# bg file
+ppid=`{cat /proc/$pid/ppid}
+echo -n `{cat /proc/$ppid/noteid} > /proc/$pid/noteid
+exec rc $1

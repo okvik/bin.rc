@@ -1,0 +1,14 @@
+#!/bin/awk -f
+function rep(s, n,		t) {
+	n = int(n / (max+1) * 60)
+	while (n--)
+		t = t s
+	return t
+}
+{ x[int($1/10)]++ }
+END {
+	for (i = 0; i < 10; i++)
+		if (x[i] > max) max = x[i]
+	for (i = 0; i < 10; i++)
+		printf("%-10d - %s\n", x[i], rep("*", x[i]))
+}

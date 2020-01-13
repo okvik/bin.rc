@@ -1,0 +1,6 @@
+#!/bin/rc
+rfork e
+dst=/tmp/scr.png
+if(! ~ $#* 0)
+	dst=$1
+topng /dev/screen >$dst

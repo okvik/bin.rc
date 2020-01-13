@@ -1,0 +1,42 @@
+#!/bin/rc -e
+rfork e
+fn usage {>[2=1] echo 'usage:' $usage && exit 'usage'}
+usage='find [-e regex ...] [type]'
+
+namefilters=()
+typefilters=(c rc)
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -e
+		namefilters=($namefilters $2)
+		shift
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+if(~ $#namefilters 0)
+	namefilters=('.*')
+if(test $#* -gt 0)
+	typefilters=$*
+select=''
+for(t in $typefilters)
+	select=$select^:^$t
+
+file `{walk -f | grep -e^$namefilters} | awk -F':' '
+	BEGIN {
+		split(ENVIRON["select"], select, ":")
+		delete select[1]
+	}
+	{
+		sub(/^ */, "", $2)
+		for(s in select){
+			if($2 ~ "^" select[s]){
+				print $1
+				break
+			}
+		}
+	}
+'

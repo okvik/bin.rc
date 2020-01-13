@@ -1,0 +1,21 @@
+#!/bin/rc
+
+# Repeats on standard output the textual output
+# of the last command in a current rio window.
+# May be considered a complement to "(1).
+
+awk '
+	/^'^$prompt(1)^'/ {clear = 1; next}
+	{
+		if(clear){
+			clear = 0
+			i = 0
+			delete buf
+		}
+		buf[i++] = $0
+	}
+	END{
+		for(i=0; i<length(buf); i++)
+			print buf[i]
+	}
+' /dev/text

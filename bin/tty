@@ -1,0 +1,3 @@
+#!/bin/rc
+rfork e
+window vt -c ssh $*

@@ -1,0 +1,5 @@
+#!/bin/rc
+title=`{echo $* | sed 's: :_:g'}
+mkdir -p /tmp/wiki
+hget 'http://en.wikipedia.org/api/rest_v1/page/html/'$title >/tmp/wiki/$title
+echo plumb 'file:///tmp/wiki/'$title

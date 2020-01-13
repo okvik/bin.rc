@@ -1,0 +1,14 @@
+#!/bin/rc
+fn die {>[1=2] echo $*; exit $"*}
+fn usage {>[1=2] echo 'usage:' $usage && exit 'usage'}
+usage='shr srv [name]'
+if(~ $#* 0)
+	usage
+srv=$1
+name=$srv
+if(~ $#* 2)
+	name=$2
+if(! test -e /srv/$srv)
+	die 'service does not exist:' $srv
+mkdir '#σc'/$name
+<>[3]/srv/$srv >'#σc'/$name/$srv echo 3

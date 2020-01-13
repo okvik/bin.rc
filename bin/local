@@ -1,0 +1,21 @@
+#!/bin/rc -e
+
+if(~ $#ws 0)
+	ws=/tmp
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -r
+		. $ws/mounts
+		plumb 'Local . '$ws'/mounts'
+		exit
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+
+echo $"* >>$ws/mounts 
+uniq $ws/mounts >$ws/mounts.q
+mv $ws/mounts.q $ws/mounts
+
+eval $* && plumb 'Local '$"*

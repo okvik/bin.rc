@@ -1,0 +1,10 @@
+#!/bin/rc
+rfork e
+fn usage {
+	>[2=1] echo $0
+	exit usage
+}
+
+cat >/tmp/stash.in
+cp /dev/text /tmp/stash.text
+cat /tmp/stash.in /tmp/stash.text >/dev/text

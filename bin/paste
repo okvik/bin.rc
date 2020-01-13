@@ -1,0 +1,18 @@
+#!/bin/rc -e
+rfork en
+fn usage {
+	>[2=1] echo $0
+	exit usage
+}
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+9fs www
+for(a)
+	cp $a /n/www/tmp

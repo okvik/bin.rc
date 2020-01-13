@@ -1,0 +1,35 @@
+#!/bin/rc
+# func - find C function definitions
+# func [pattern]
+
+rfork e
+
+fn sigint sighup sigexit {
+	rm -f $matches
+	exit
+}
+
+ignore='(\.root.s$)|(cmd/python/)'
+matches=/tmp/matches.$pid
+ident='([a-zA-Z_][a-zA-Z_0-9]*)'
+
+func=$1
+func=`{echo $func | sed 's,%,'$ident'?,g'}
+if(~ $#func 0)
+	func=$ident
+#patt='^([^ 	]+[ 	]+)*'$func'\('
+patt='^'$func'\('
+
+srcs=`{walk -f | grep '\.[chs]$' | grep -v $ignore}
+>$matches grep -n $patt $srcs /dev/null
+n=`{wc -l $matches}
+switch($n(1)){
+	case 0
+		exit 'no match'
+	case 1
+		plumb `{<$matches sed 's,: .*,,'}
+		exit
+	case *
+		window -m 'cat '$matches'; cat'
+		sleep 1
+}

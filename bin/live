@@ -1,0 +1,60 @@
+#!/bin/rc
+# live 'grep ~ *'
+# tilde will be replaced by the typed text, enter runs the
+# command. there's a very limited line-editing in the form
+# of backspace, and ^W and ^U, which just kill the whole line.
+rfork e
+bs=''
+cu=''
+cw=''
+del=''
+nl=`{unicode -t 0x0a}
+cmd0=$1
+cmd=echo
+killme=please
+fn prep {
+	n=`{wc -c /env/buf}
+	if(! ~ $n(1) 0){
+		cmd=`{echo $cmd0 | sed 's/~/'^`{cat /env/buf}^'/'}
+		echo -n $cmd
+	}
+	if not
+		echo -n $cmd0
+}
+fn run {
+	echo $cmd
+	@{eval $cmd} &
+	killme=$apid
+}
+fn stop {
+	if(test -f /proc/$killme/notepg)
+		echo kill >/proc/$killme/notepg
+}
+>/env/buf
+>/dev/text
+echo scroll >/dev/wctl
+>[3]/dev/consctl </dev/cons {
+	echo rawon >[1=3]
+	while(c=`{read -c 1}){
+		>/dev/text
+		switch($c){
+		case $"nl
+			run
+		case $del
+			stop
+			exit
+		case $cw $cu
+			stop
+			>/env/buf
+			prep
+		case $bs
+			stop
+			read -c `{echo `{wc -c </env/buf} - 1 | bc} </env/buf >/env/tmp
+			cp /env/tmp /env/buf
+			prep
+		case *
+			echo -n $"c >>/env/buf
+			prep
+		}
+	}
+}

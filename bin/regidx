@@ -1,0 +1,6 @@
+#!/bin/rc
+mtpt=/mnt/registry
+if(test $#* -gt 0)
+	mtpt=$1
+awk '/tlssrv/{print "srvtls -c", $1, $3, $5}
+/exportfs/{print "srv -c", $1, $3, $5 }' $mtpt/index

@@ -1,0 +1,16 @@
+#!/bin/awk -f
+BEGIN{
+	plumb = "plumb -i -d edit -a 'action=Edit'"
+	if(ARGC > 1){
+		for(i = 1; i < ARGC; i++)
+			cmd = cmd " " ARGV[i]
+		print cmd | plumb
+		exit
+	}
+}
+{
+	if($1 == "!")
+		$0 = last
+	print | plumb; close(plumb)
+	last = $0
+}

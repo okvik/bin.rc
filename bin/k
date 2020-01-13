@@ -1,0 +1,27 @@
+#!/bin/rc
+# k - mark position (from sam)
+
+marks=$ws/marks
+if(~ $#marks 0)
+	marks=/tmp/marks.default
+
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -c
+		>$marks; exit
+	case -p
+		plumb -d edit $marks
+	case -v
+		test -f $marks && window 'label marks; tail -f '$marks
+		exit
+	case *;
+		exit usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+	
+if(~ $#% 0)
+	exit notsam
+echo $%:$'%l' $* >>$marks

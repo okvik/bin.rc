@@ -1,0 +1,57 @@
+#!/bin/rc
+rfork e
+
+url='http://'
+query=()
+browser=plumb
+
+fn usage {
+	echo 'usage: web [option] text...' >[1=2]
+	echo '	-g	google'
+	echo '	-gi	google image'
+	echo '	-d	duckduckgo'
+	echo '	-di	duckduckgo image'
+	echo '	-w	wikipedia'
+	echo '	-t		thesaurus'
+	echo '	-D	dictionary'
+	echo '	-b	libgen.io'
+	echo '	-h	display this message'
+	echo '	-B browser'
+	exit 'usage'
+}
+
+if(~ $#* 0)
+	usage
+
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -h
+		usage; exit
+	case -B
+		browser=$2
+		shift
+	case -g
+		url='http://google.com/search?q='
+	case -gi
+		url='http://google.com/images?q='
+	case -d
+		url='http://duckduckgo.com/lite/?q='
+	case -di
+		url='http://duckduckgo.com/html/?q=!bi+'
+	case -w
+		url='http://en.m.wikipedia.org/w/index.php?search='
+	case -hw
+		url='http://hr.m.wikipedia.org/w/index.php?search='
+	case -b
+		url='http://libgen.me/search.php?req='
+	case -t
+		url='https://www.merriam-webster.com/thesaurus/'
+	case -D
+		url='https://www.merriam-webster.com/dictionary/'
+	case -m
+		url='https://marc.info/?l='
+	}
+	shift
+}
+query=`{echo $"* | sed 's:[ 	]:\+:g'}
+$browser $url^$"query

@@ -1,0 +1,10 @@
+#!/bin/rc
+rfork en
+d=/n/ram
+f=$d/list
+
+ramfs -m $d
+ls -pF $* >$f
+
+grep '/$' $f | mc
+grep -v '/$' $f | mc

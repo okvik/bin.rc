@@ -1,0 +1,2 @@
+#!/bin/rc
+exec sed 's,[ 	]+$,,g; s,^[ 	]+,,g'

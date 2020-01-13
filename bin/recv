@@ -1,0 +1,12 @@
+#!/bin/rc
+fn usage {
+	>[2=1] echo 'recv port [file]'
+	exit usage
+}
+port=$1
+if(~ $#port 0)
+	usage
+file=$2
+if(~ $#file 0)
+	file=/fd/1
+>[9=1] >[9]$file aux/listen1 -t tcp!*!$port rc -c '/bin/cat >[1=9]'

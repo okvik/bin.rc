@@ -1,0 +1,11 @@
+#!/bin/rc
+# 21 - poor man's acme 2-1 chord for sam
+rfork e
+for(i in `{seq 1 $#*})
+	args=($args ''''$$i'''')
+cat >/env/pgm <<'.'
+cd `{basename -d $%}
+$* $"%s
+cat
+.
+window -m 'rc /env/pgm '$"args

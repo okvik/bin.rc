@@ -1,0 +1,27 @@
+#!/bin/rc
+cat >/env/pgm <<.
+function parseflags(		a, i) {
+	while(ARGV[++argi] ~ /^-.+$/){
+		if(ARGV[argi] == "--"){
+			argi++
+			break
+		}
+		split(ARGV[argi], a, "")
+		if(length(a) == 2 && ARGV[argi+1] !~ /^-/){
+			flag[a[2]] = ARGV[++argi]
+			continue
+		}
+		for(i = 1; i <= length(a); i++)
+			if(a[i] != "-")
+				flag[a[i]] = 1
+	}
+}
+BEGIN{
+	parseflags()
+	for(f in flag)
+		print f " " flag[f]
+	for(; argi < ARGC; argi++)
+		print ARGV[argi]
+}
+.
+awk -f /env/pgm -- $*

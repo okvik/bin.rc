@@ -1,0 +1,6 @@
+#!/bin/rc
+bind / /n/realroot
+ramfs -m /n/portroot
+unionfs -m /n/root / -c /n/portroot
+bind /n/root /
+bind -c '#e' /env

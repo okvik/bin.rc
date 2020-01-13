@@ -1,0 +1,6 @@
+#!/bin/rc
+sect=1
+if(test $#* -gt 0)
+	sect=$*
+for(s in $sect)
+	ls /sys/man/$s | sed '/(INDEX|NOTICE)/d; s/^.*\///g; s/.*/&\('$s'\)/g' | mc

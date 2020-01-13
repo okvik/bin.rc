@@ -1,0 +1,21 @@
+#!/bin/rc
+# Print the address of a selection in acme
+nl='
+'
+w=/mnt/acme/$winid
+tag=`{cat $w/tag}
+fn regexaddr {
+	echo 'addr=dot' >$w/ctl
+	sel=`$nl{escape <$w/xdata}
+	addr=$tag(1)^':/^'$sel
+	echo $addr
+}
+fn charaddr {
+	echo 'addr=dot' >$w/ctl
+	addr=`{cat <$w/addr}
+	echo $tag(1)^':#'^$addr(1)^',#'^$addr(2)
+}
+addrfn=regexaddr
+if(test $#* -gt 0 && ~ $1 -c)
+	addrfn=charaddr
+$addrfn

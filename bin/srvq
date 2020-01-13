@@ -1,0 +1,23 @@
+#!/bin/rc
+rfork e
+
+fn usage {
+	>[2=1] echo $0 name service [proto]
+	exit usage
+}
+
+if(test $#* -lt 1)
+	usage
+name=$1
+service=$2
+if(~ $#service 0)
+	service='ssh'
+proto=$3
+if(~ $#proto 0)
+	proto='tcp'
+
+rr=`{echo _$service._$proto.$name srv | ndb/dnsquery >[2]/dev/null}
+if(echo $rr | grep -s '^!dns:')
+	exit NXDOMAIN
+echo $rr |
+	awk '{printf("%s!%s!%s\n", ENVIRON["proto"], $6, $5)}'

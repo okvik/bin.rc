@@ -1,0 +1,22 @@
+#!/bin/rc
+rfork e
+nl='
+'
+while(line=`$nl{read}){
+	cmd=$line
+	if(~ $#cmd 0) cmd='\r'
+	switch($cmd){
+	case '\r'
+		ci /env/code
+	case '\t'
+		time ci /env/code
+	case '\prof'
+		ci -p /env/code
+	case '\p'
+		cat /env/code
+	case '\c'
+		>/env/code
+	case *
+		echo $line >>/env/code
+	}
+}

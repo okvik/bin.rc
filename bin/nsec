@@ -1,0 +1,2 @@
+#!/bin/ci
+print("%lld\n", nsec());

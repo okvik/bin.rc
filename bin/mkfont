@@ -1,0 +1,29 @@
+#!/bin/rc
+fn usage {>[1=2] echo 'usage:' $usage && exit 'usage'}
+usage='mkfont [-s sizes] [-m method] fontname'
+
+rfork e
+method=antialias
+sz=(14 16 18 20)
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -m
+		method=$2; shift
+	case -s
+		sz=$2; shift
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+if(~ $#* 0)
+	usage
+fntname=$1
+shift
+fntfile=$fntname.ttf
+if(~ $#* 1)
+	fntfile=$1
+for(s in $sz)
+	ttf2subf -s $s -f $fntfile -n $fntname -m $method

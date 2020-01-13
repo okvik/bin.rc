@@ -1,0 +1,10 @@
+#!/bin/rc
+name=$1
+if(~ $#name 0)
+	name='vmx'
+bind '#|' /n/p
+<>[3]/n/p/data1 {
+	rm -f /srv/$name
+	echo 3 >/srv/$name.cons
+	vt con /n/p/data
+}

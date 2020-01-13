@@ -1,0 +1,28 @@
+#!/bin/rc -e
+rfork e
+fn usage {>[1=2] echo 'usage:' $usage && exit 'usage'}
+usage='vol [-+] | [+-]vol | vol'
+
+fn expr {
+	switch($2){
+	case [-+][0-9]*
+		echo $1 $2 | bc
+	case - +
+		echo $1 $2 5 | bc
+	case *
+		echo $2
+	}
+}
+
+if(~ $#* 0)
+	usage
+
+vol=`{awk '/master/ {print $2, $3}' </dev/volume}
+switch($#*){
+case 1
+	vol=(`{expr $vol(1) $1})
+case 2
+	vol=(`{expr $vol(1) $1} `{expr $vol(2) $2})
+}
+echo master $vol
+echo master $vol >/dev/volume

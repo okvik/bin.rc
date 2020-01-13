@@ -1,0 +1,22 @@
+#!/bin/rc -e
+rfork e
+fn usage {>[1=2] echo 'usage:' $usage && exit 'usage'}
+usage='ep'
+
+fn salt {dd -if /dev/random -count 1 -quiet 1 | sum | sed 's/ .*//'}
+
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+if(test $#* -gt 0)
+	usage
+
+file = /tmp/ep.`{salt}
+cat >$file
+plumb -d edit $file

@@ -1,0 +1,54 @@
+#!/bin/rc
+
+fn usage {
+	>[1=2] {
+	echo mnt [mount options] [-m mtpt] [-s spec] name cmd [args ...]
+	echo mnt [mount options] [-m mtpt] [-s spec] name
+	}
+	exit usage
+}
+
+flags=()
+mtpt=()
+spec=()
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -m
+		mtpt=$2
+		shift
+	case -s
+		spec=$2
+		shift
+	case *
+		flags=($flags $1)
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+name=$1
+if(~ $#name 0)
+	usage
+shift
+if(~ $#mtpt 0)
+	mtpt=/n/$name
+cmd=$1
+if(! ~ $#cmd 0)
+	shift
+
+if(mount $flags /srv/$name $mtpt $spec )
+	exit
+if(~ $#cmd 0)
+	usage
+switch($cmd){
+case srv srvtls
+	$cmd $* $name
+case rimport
+	rimport $flags -s $name $* $mtpt
+	exit
+case ramfs
+	ramfs -S $name $*
+case *
+	$cmd -s $name $*
+}
+mount $flags /srv/$name $mtpt $spec

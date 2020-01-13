@@ -1,0 +1,53 @@
+#!/bin/rc
+# share - share files with the grid
+# Uploads a given file to a shared griddisk (gridram with -r)
+# directory and plumbs the resulting file path (web url with -w).
+# Option -n disables plumbing.
+rfork en
+fn usage{
+	echo share [-rwn] file [destdir] >[1=2]
+	exit usage
+}
+plumb='yes'
+urlplumb='no'
+dest='griddisk'
+if(~ $#* 0) usage
+while(! ~ $#* 0 && ~ $1 -*){
+	switch($1){
+		case -n
+			plumb='no'
+		case -r
+			dest='gridram'
+			urlplumb='no'
+		case -w
+			dest='griddisk'
+			urlplumb='yes'
+		case *
+			usage
+	}
+	shift
+}
+switch($dest){
+	case gridram
+		destdir=''
+	case griddisk
+		destdir='tmp'
+}
+if(~ $#* 2)
+	destdir=$2
+file=$1
+destpath=/n/$dest/$destdir
+if(! test -d $destpath)
+	mkdir -p $destpath
+fcp $file $destpath
+if(~ $plumb no)
+	exit
+if(test -e /srv/gridplumber)
+	mount /srv/gridplumber /mnt/plumb
+if(~ $urlplumb no)
+	plumb $destpath/`{basename $file}
+if not {
+	url='http://wiki.9gridchan.org/incoming/'$destdir/`{basename $file}
+	echo $url
+	plumb $url
+}

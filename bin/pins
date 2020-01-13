@@ -1,0 +1,14 @@
+#!/bin/rc
+dir=$1
+if(~ $#dir 0)
+	dir='out'
+</dev/audiostat awk '
+/^pin [0-9]+ '$dir'/ {
+	printf "@{echo pin %d>/dev/audioctl} #", $2
+	for(i = 4; i <= NF; i++){
+		if($i == "←")
+			break
+		printf " %s", $i
+	}
+	printf "\n"
+}'

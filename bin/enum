@@ -1,0 +1,29 @@
+#!/bin/rc
+rfork e
+fn usage{
+	echo usage: `{basename $0} '[file ...]' >[1=2]
+	exit 'usage'
+}
+
+if(! ~ $#* 0)
+	fl=$*
+if not
+	fl=(/sys/src/libc/^(port 9sys)^/*.c)
+
+awk '
+	/^enum[ 	]*{$/ {
+		matched = 1
+		if(nfound++ > 0)
+			print ""
+		if(ARGC != 1)
+			print FILENAME ":" FNR
+	}
+
+	matched {
+		print
+	}
+
+	matched && /^}/ {
+		matched = 0
+	}
+' $fl

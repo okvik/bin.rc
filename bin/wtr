@@ -1,0 +1,4 @@
+#!/bin/rc
+if(~ $#1 0)
+	loc=varazdin
+hget http://wttr.in/~$loc.png | page -w

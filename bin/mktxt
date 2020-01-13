@@ -1,0 +1,5 @@
+#!/bin/rc
+f=/fd/0
+if(test $#* -gt 0)
+	f=$*
+troff -man -N -rL1000i $f | ssam 'x/\n\n\n+/c/\n\n/'

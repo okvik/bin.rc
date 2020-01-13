@@ -1,0 +1,30 @@
+#!/bin/rc -e
+rfork e
+overwrite=no
+data=/tmp/sio.$pid
+>$data
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -i
+		cat >$data
+	case -f
+		overwrite=yes
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+if(! ~ $#* 0){
+	switch($1){
+	case /*
+		ndata=$1
+	case *
+		ndata=/tmp/sio.$1
+	}
+	if(~ $overwrite yes)
+		mv $data $ndata
+	data=$ndata
+}
+
+sam -a $data
+cat $data

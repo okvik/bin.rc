@@ -1,0 +1,16 @@
+#!/bin/rc
+# sz -- convert computer units to bytes
+fn usage {>[1=2] echo 'usage:' $usage && exit 'usage'}
+usage='sz x'
+
+{
+	echo -n $1 | tr -d 'a-zA-Z'
+	echo -n '*'
+	switch($1){
+	case *[kK]; echo '1024'
+	case *[mM]; echo '1024*1024'
+	case *[gG]; echo '1024*1024*1024'
+	case *[tT]; echo '1024*1024*1024*1024'
+	case *;     echo '1'
+	}
+} | bc

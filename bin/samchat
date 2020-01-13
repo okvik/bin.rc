@@ -1,0 +1,14 @@
+#!/bin/rc
+chan=/n/chat/chat
+bind '#|' /mnt/samchat
+data=/mnt/samchat/data1
+{
+	while(){
+		<$data >>$chan ssam '
+			1 x/^/ c/'$user' : /
+			,s/\n\n\n+/\n\n/g
+			$-2,$-1 s/\n\n/\n/
+			$-#1,$ v/\n/ a/\n/'
+	}
+} &
+echo `{cat /proc/$pid/noteid} >/proc/$apid/noteid

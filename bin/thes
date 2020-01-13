@@ -1,0 +1,7 @@
+#!/bin/rc
+url=https://www.merriam-webster.com/thesaurus
+word=`{echo $"* | sed 's/[ 	]/\+/g'}
+if(~ $#word 0)
+	exit
+hget $url/$word | htmlfmt | ssam '0,/^Thesaurus/+ d
+/^Learn More/-3,$ d'

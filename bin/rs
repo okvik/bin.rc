@@ -1,0 +1,2 @@
+#!/bin/rc
+grep softscreen /dev/vgactl >/dev/vgactl

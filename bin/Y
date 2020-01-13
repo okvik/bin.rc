@@ -1,0 +1,12 @@
+#!/bin/rc
+# Yank [register]
+if(~ $#* 1){
+	where=/env/$1
+	echo '>cat >>'$where
+}
+if not {
+	where=/env/yXy
+	cat /dev/snarf >$where
+	echo '>cat >>'$where
+	echo '!cat $where >/dev/snarf'
+}

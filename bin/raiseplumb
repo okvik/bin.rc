@@ -1,0 +1,20 @@
+#!/bin/rc
+rfork e
+
+fn usage {
+	echo $0 port >[1=2]
+	exit usage
+}
+
+port=$1
+if(~ $#port 0)
+	usage
+{
+	while(read -c 1 /mnt/plumb/$port >/dev/null){
+		>/dev/wctl >[2]/dev/null {
+		echo -n current
+		echo -n unhide
+		}
+	}
+} &
+echo -n `{cat /proc/$pid/noteid} > /proc/$apid/noteid

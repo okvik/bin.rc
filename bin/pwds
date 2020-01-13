@@ -1,0 +1,3 @@
+#!/bin/rc
+cat /dev/text >/tmp/xxx
+cat <{echo -n 'cd '; pwd} /tmp/xxx >/dev/text

@@ -1,0 +1,6 @@
+#!/bin/rc
+w h 0.2 Down Right 
+>/dev/text
+label /dev/kprint
+echo scroll > /dev/wctl
+cat /dev/kprint
