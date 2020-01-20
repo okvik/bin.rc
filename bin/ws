@@ -1,0 +1,45 @@
+#!/bin/rc -e
+# ws -- new workspace
+rfork en
+fn usage {>[1=2] echo 'usage:' $usage && exit 'usage'}
+usage='local [-r] mntcmd'
+
+fn mkname {
+	awk '
+		NR>72 {nm[i++] = $2}
+		END {srand(); print nm[int(rand()*length(nm))]}
+	' /lib/volcanoes
+}
+
+restore='no'
+while(~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -r
+		restore='yes'
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+
+name=$1
+if(~ $#name 0)
+	name=`{mkname}
+ws=$home/lib/ws/$name
+mkdir -p $ws
+echo $name >$ws/name
+
+if(~ $restore 'yes' && test -f $ws/mounts)
+	. $ws/mounts
+
+plumber
+w height .99 width 1 down
+bind /mnt/wsys /mnt/orio # w(1) hack
+cat >/env/run <<.
+#!/bin/rc
+label $name
+window 'w width height 1 Right; rc'
+.
+exec rio -i /env/run
