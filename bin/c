@@ -17,7 +17,7 @@ fn struct {
 
 	files = `{walk -f $search | $ignore | grep '\.[chsyl]$'}
 
-	echo 'X ,x@^struct([^}][^;]*\n*)+};\n@ g@^struct[ 	]+'$regex'@ {
+	echo 'X ,x@^(typedef[ 	\n]+)?struct([^}][^;]*\n*)+}.*;\n@ g@^(typedef[ 	\n]+)?struct[ 	]+'$regex'@ {
 		!echo '•' $%:$%l
 		p
 	}' | sam -d $files >[2]/dev/null
