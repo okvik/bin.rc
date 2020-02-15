@@ -1,8 +1,13 @@
-#!/bin/rc
-
+#!/bin/rc -e
 rfork e
 
-O=`{sed 's/^O=//; t end; D; :end; q' /$objtype/mkfile}
-CFLAGS=`{sed 's/^CFLAGS=//; t end; D; :end; q' /sys/src/mkfile.proto}
+. /$objtype/mkfile
 
-$O^c $CFLAGS $1.c && $O^l -o $1 $1.$O
+while(~ $1 -* && ! ~ $1 --){
+	CFLAGS=($CFLAGS $1)
+	shift
+}
+if(~ $1 --) shift
+
+$CC $CFLAGS $1.c
+$LD -o $1 $1.$O
