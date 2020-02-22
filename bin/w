@@ -106,16 +106,24 @@ fn parse {
 		case width w
 			if(isnum $2){wwidth $2; shift}
 			if not {
-				x=`{stringsize -n 82}
-				x=$x(1)
-				wwidth `{echo $x' / '$riow | hoc}
+				x = $wwidth
+				if(~ $#x 0){
+					x=`{stringsize -n 80}
+					x=$x(1)
+				}
+				x = `{echo $x '/' $riow | hoc}
+				wwidth $x
 			}
 		case height h
 			if(isnum $2){wheight $2; shift}
 			if not {
-				y=`{stringsize}
-				y=$y(2)
-				wheight `{echo '(23*'$y') / '$rioh | hoc}
+				y = $wheight
+				if(~ $#y 0){
+					y=`{stringsize}
+					y=`''{echo '28*'^$y(2) | hoc}
+				}
+				y = `{echo $y '/' $rioh | hoc}
+				wheight $y
 			}
 		case right r ; wmove right
 		case Right R ; wmove Right
