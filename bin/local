@@ -8,6 +8,12 @@ while(~ $1 -* && ! ~ $1 --){
 		. $ws/mounts
 		plumb 'Local . '$ws'/mounts'
 		exit
+	case -e
+		shift
+		var=$1
+		shift
+		plumb 'Local echo -n '$"*' >/env/'$var
+		exit
 	}
 	shift
 }
