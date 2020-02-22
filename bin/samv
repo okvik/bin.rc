@@ -13,5 +13,5 @@ files=($%)
 if(! ~ $#* 0)
 	files=($files $*)
 cmd=(sam $flags $files)
-#ptrap edit $"files
+unmount /mnt/plumb
 window -m $cmd
