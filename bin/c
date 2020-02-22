@@ -5,6 +5,8 @@ usage='c [-fs] [regex] [search]
 	-f        find functions
 	-s        find structs'
 
+fn isatty {grep -s '/dev/cons' /fd/0ctl}
+
 fn struct {
 	ignore = (/sys/include/ape)
 	search = $*
@@ -57,6 +59,14 @@ while(~ $1 -* && ! ~ $1 --){
 }
 if(~ $1 --)
 	shift
+
+if(! isatty){
+	nl = '
+'
+	'*' = `$nl{cat}
+	if(! ~ $#% 0)
+		cd `{basename -d $%}
+}
 regex = `{echo $1 | sed 's:%:'$identifier':g'}
 if(~ $#regex 0)
 	regex = $identifier
