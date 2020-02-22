@@ -1,6 +1,0 @@
-#!/bin/rc
-# put [register]
-where=/dev/snarf
-if(! ~ $#* 0)
-	where=/env/$1
-echo '<cat '$where
