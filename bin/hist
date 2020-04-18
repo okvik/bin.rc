@@ -5,10 +5,14 @@ function rep(s, n,		t) {
 		t = t s
 	return t
 }
-{ x[int($1/10)]++ }
+BEGIN {
+	buckets = 20
+	maxval = 1000
+}
+{ x[int($1/(maxval/buckets))]++ }
 END {
-	for (i = 0; i < 10; i++)
+	for (i = 0; i < buckets; i++)
 		if (x[i] > max) max = x[i]
-	for (i = 0; i < 10; i++)
+	for (i = 0; i < buckets; i++)
 		printf("%-10d - %s\n", x[i], rep("*", x[i]))
 }
