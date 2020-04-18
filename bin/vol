@@ -4,11 +4,12 @@ fn usage {>[1=2] echo 'usage:' $usage && exit 'usage'}
 usage='vol [-+] | [+-]vol | vol'
 
 fn expr {
-	switch($2){
+	op=$2
+	switch($op){
 	case [-+][0-9]*
-		echo $1 $2 | bc
+		echo $1 $op | bc
 	case - +
-		echo $1 $2 5 | bc
+		echo $1 $op $step | bc
 	case *
 		echo $2
 	}
@@ -17,6 +18,7 @@ fn expr {
 if(~ $#* 0)
 	usage
 
+step=5
 vol=`{awk '/master/ {print $2, $3}' </dev/volume}
 switch($#*){
 case 1
