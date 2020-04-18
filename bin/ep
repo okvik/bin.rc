@@ -18,5 +18,5 @@ if(test $#* -gt 0)
 	usage
 
 file = /tmp/ep.`{salt}
-cat >$file
+col -b >$file
 plumb -d edit $file
