@@ -38,7 +38,7 @@ fn function {
 	files = `{walk -f $search | $ignore | grep '\.[chsyl]$'}
 
 	sep = '	• '
-	echo 'X ,x g@^'$regex'\(@ {
+	echo 'X ,x g@^([^ 	]+[ 	]+)*'$regex'\(@ {
 		!echo -n $%:$%dot(1) $sep
 		p
 	}' | sam -d $files >[2]/dev/null
