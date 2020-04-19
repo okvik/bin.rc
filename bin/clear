@@ -1,7 +1,8 @@
 #!/bin/rc
-if(~ $1 -a){
-	>/dev/text
-	exit
-}
+rfork e
+flagfmt = 'a:clearall'
+eval `{aux/getflags} || aux/usage
+if(~ $clearall 1)
+	>/dev/text && exit
 </dev/text sed '/^'^$prompt(1)^'/q' | sed '$d' >/tmp/clear
 cat /tmp/clear >/dev/text
