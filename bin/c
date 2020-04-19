@@ -7,7 +7,7 @@ fn struct {
 	ignore = (/sys/include/ape)
 	search = $*
 	if(~ $#search 0)
-		search = (/sys/include .)
+		search = (.)
 	if(~ $search *^$ignore^*)
 		ignore = (cat)
 	if not
