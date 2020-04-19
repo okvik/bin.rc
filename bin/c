@@ -1,9 +1,5 @@
 #!/bin/rc
 rfork e
-fn usage {>[2=1] echo 'usage:' $usage && exit 'usage'}
-usage='c [-fs] [regex] [search]
-	-f        find functions
-	-s        find structs'
 
 fn isatty {grep -s '/dev/cons' /fd/0ctl}
 
@@ -44,22 +40,14 @@ fn function {
 	}' | sam -d $files >[2]/dev/null
 }
 
-identifier = '[a-zA-Z_0-9]*'
-op = (struct)
-while(~ $1 -* && ! ~ $1 --){
-	switch($1){
-	case -f -func*
-		op = 'function'
-	case -s -struct
-		op = 'struct'
-	case *
-		usage
-	}
-	shift
-}
-if(~ $1 --)
-	shift
 
+op = 'struct'
+identifier = '[a-zA-Z_0-9]*'
+
+flagfmt = 'f,s'; args = '[regexp] [searchpath]'
+if(! eval `''{aux/getflags $*}) aux/usage
+if(~ $flagf 1) op = 'function'
+if(~ $flags 1) op = 'struct'
 if(! isatty){
 	nl = '
 '
