@@ -1,7 +1,5 @@
 #!/bin/rc -e
 rfork en
-fn usage {>[1=2] echo 'usage:' $usage && exit 'usage'}
-usage='bag [-f] file ...'
 
 fn bag {
 	file = $1
@@ -9,7 +7,7 @@ fn bag {
 	b = $h(1)
 	f = $b^/^$h(2)
 	h = $h(3)
-	if(~ $force yes || ! test -e $bag/$f){
+	if(~ $force 1 || ! test -e $bag/$f){
 		mkdir -p $bag/$b
 		>>$bag/$f.tag {
 			echo 'hash:' $h
@@ -26,38 +24,20 @@ fn bag {
 	echo $bagurl/$f
 }
 
+flagfmt = 'f:force,t:tags tags,m:note message'; args = 'file ...'
+if(! eval `''{aux/getflags $*}) aux/usage
+
 if(~ $#bag 0)
 	bag = /n/bag
 if(~ $#bagurl 0)
 	bagurl = http://a-b.xyz
-force = no
-tags = ()
-note = ()
-while(~ $1 -* && ! ~ $1 --){
-	switch($1){
-	case -f
-		force = yes
-	case -t
-		shift
-		tags = ($tags $1)
-	case -m
-		shift
-		note = $1
-	case *
-		usage
-	}
-	shift
-}
-if(~ $1 --)
-	shift
 
-9fs bag
 ramfs -u -m /mnt/ram
-
 files = ($*)
 if(~ $#files 0){
 	cat /fd/0 >/mnt/ram/stdin
 	files = (/mnt/ram/stdin)
 }
+9fs bag
 for(f in $files)
 	bag $f
