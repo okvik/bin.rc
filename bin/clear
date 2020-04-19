@@ -1,7 +1,8 @@
-#!/bin/rc
+#!/bin/rc -e
 rfork e
-flagfmt = 'a:clearall'
-eval `{aux/getflags} || aux/usage
+flagfmt = 'a:clearall'; args = ''
+eval `{aux/getflags $*} || aux/usage
+
 if(~ $clearall 1)
 	>/dev/text && exit
 </dev/text sed '/^'^$prompt(1)^'/q' | sed '$d' >/tmp/clear
