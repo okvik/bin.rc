@@ -1,7 +1,8 @@
 #!/bin/rc
-## Find untracked files in a git repository
-
-@{	cd `{git/conf -r} &&
+rfork e
+. /sys/lib/git/common.rc
+gitup
+@{cd `{git/conf -r} &&
 	git/walk -c &&
 	walk -f | grep -v '^\.git'
 }| sort | uniq -u
