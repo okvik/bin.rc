@@ -21,6 +21,23 @@ fn struct {
 	}' | sam -d $files >[2]/dev/null
 }
 
+fn enum {
+	search = $*
+	if(~ $#search 0)
+		search = (.)
+	files = `{walk -f $search | grep '\.[ch]$'}
+	awk '
+	/^enum[ 	]*{/ {
+		matched = 1
+		if(nfound++ > 0) printf "\n"
+		if(ARGC != 1)
+			print FILENAME ":" FNR
+	}
+	matched         {print}
+	matched && /^}/ {matched = 0}
+	' $files
+}
+
 fn function {
 	ignore = ('\.root.s$' 'cmd/python/')
 	search = $*
@@ -46,6 +63,7 @@ identifier = '[a-zA-Z_0-9]*'
 
 flagfmt = 'e,f,s'; args = '[regexp] [searchpath]'
 eval `{aux/getflags $*} || exec aux/usage
+if(~ $flage 1) op = 'enum'
 if(~ $flagf 1) op = 'function'
 if(~ $flags 1) op = 'struct'
 if(! isatty){
