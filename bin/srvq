@@ -1,13 +1,11 @@
 #!/bin/rc
 rfork e
 
-fn usage {
-	>[2=1] echo $0 name service [proto]
-	exit usage
-}
+flagfmt=''; args='name [service [proto]]'
+eval `''{aux/getflags $*} || exec aux/usage
 
 if(test $#* -lt 1)
-	usage
+	exec aux/usage
 name=$1
 service=$2
 if(~ $#service 0)
