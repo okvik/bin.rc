@@ -44,8 +44,8 @@ fn function {
 op = 'struct'
 identifier = '[a-zA-Z_0-9]*'
 
-flagfmt = 'f,s'; args = '[regexp] [searchpath]'
-if(! eval `''{aux/getflags $*}) aux/usage
+flagfmt = 'e,f,s'; args = '[regexp] [searchpath]'
+eval `{aux/getflags $*} || exec aux/usage
 if(~ $flagf 1) op = 'function'
 if(~ $flags 1) op = 'struct'
 if(! isatty){
