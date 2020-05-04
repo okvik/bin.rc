@@ -1,3 +1,2 @@
 #!/bin/rc
-rfork e
-font=/lib/font/bit/unifont/unifont.font window -m vt -c ssh $*
+font=$monofont window -m vt -c ssh $*
