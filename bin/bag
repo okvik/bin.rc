@@ -25,7 +25,7 @@ fn bag {
 }
 
 flagfmt = 'f:force,t:tags tags,m:note message'; args = 'file ...'
-if(! eval `''{aux/getflags $*}) aux/usage
+eval `''{aux/getflags $*} || exec aux/usage
 
 if(~ $#bag 0)
 	bag = /n/bag
