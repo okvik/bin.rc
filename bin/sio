@@ -1,30 +1,10 @@
-#!/bin/rc -e
+#!/bin/rc
 rfork e
-overwrite=no
+fn sigexit {rm -f $data}
+fn iscons {grep -s ' /dev/cons$' /fd/^$1^ctl}
+
 data=/tmp/sio.$pid
 >$data
-while(~ $1 -* && ! ~ $1 --){
-	switch($1){
-	case -i
-		cat >$data
-	case -f
-		overwrite=yes
-	}
-	shift
-}
-if(~ $1 --)
-	shift
-if(! ~ $#* 0){
-	switch($1){
-	case /*
-		ndata=$1
-	case *
-		ndata=/tmp/sio.$1
-	}
-	if(~ $overwrite yes)
-		mv $data $ndata
-	data=$ndata
-}
-
-sam -a $data
+if(! iscons 0) cat >$data
+editor $data
 cat $data
