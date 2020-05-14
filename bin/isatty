@@ -1,6 +1,0 @@
-#!/bin/awk -f
-BEGIN {
-	getline <"/fd/0ctl"
-	if($10 != "/dev/cons")
-		exit "nein"
-}
