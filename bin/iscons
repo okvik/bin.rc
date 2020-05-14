@@ -1,0 +1,7 @@
+#!/bin/rc
+rfork e
+
+fd = $1
+if(~ $#fd 0)
+	fd = 0
+exec grep -s ' /dev/cons$' /fd/^$fd^ctl
